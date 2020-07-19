@@ -16,7 +16,11 @@ typedef struct
 
 int get_QRXFTM(QRXFTM_response* response, const char* buf, size_t size)
 {
-  if (response != NULL)
+  if (response == NULL)
+  {
+    return STATUS_INVALID_PARAMETER;
+  }
+  if (buf == NULL)
   {
     return STATUS_INVALID_PARAMETER;
   }
@@ -35,6 +39,8 @@ int main()
   assert(response.agc_to_pwr == -65);
   assert(get_QRXFTM(&response, test_response_ERROR, sizeof(test_response_ERROR)) == STATUS_ERROR);
   assert(get_QRXFTM(&response, test_response_INVALID, sizeof(test_response_INVALID)) == STATUS_INVALID_RESPONSE);
+  assert(get_QRXFTM(NULL, test_response_INVALID, sizeof(test_response_INVALID)) == STATUS_INVALID_PARAMETER);
+  assert(get_QRXFTM(&response, NULL, sizeof(test_response_INVALID)) == STATUS_INVALID_PARAMETER);
 
   return 0;
 }
