@@ -32,7 +32,7 @@ int main()
 {
   QRXFTM_response response;
   const char test_response_OK[] = "+QRXFTM: -176,-65\n\nOK\n";
-  const char test_response_ERROR[] = "+QRWFTM: ERROR\n";
+  const char test_response_ERROR[] = "+QRXFTM: ERROR\n";
   const char test_response_INVALID[] = "+XRWFTM: -176,-65\n\nOK\n";
   assert(get_QRXFTM(&response, test_response_OK, sizeof(test_response_OK)) == STATUS_OK);
   assert(response.agc_val == -176);
