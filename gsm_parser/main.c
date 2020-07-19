@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <assert.h>
 #include <stddef.h>
@@ -55,8 +56,11 @@ int get_QRXFTM(QRXFTM_response* response, const char* buf, int size)
   {
     return STATUS_INVALID_RESPONSE;
   }
+
+  // skip prefix
   buf += len_of_prefix;
   size -= len_of_prefix;
+  if (size < 0) { return STATUS_INVALID_RESPONSE; }
 
 
   if (strstr(buf, QRXTRM_ERROR) != NULL)
@@ -88,6 +92,7 @@ int get_QRXFTM(QRXFTM_response* response, const char* buf, int size)
   const unsigned COMMA_SIZE = 1;
   buf += ptr_diff + COMMA_SIZE;
   size -= ptr_diff + COMMA_SIZE;
+  if (size < 0) { return STATUS_INVALID_RESPONSE; }
 
   const char* lf_ptr = strchr(buf, '\n');
   retcode = get_value_from_buf(&value, buf, &end);
@@ -122,5 +127,14 @@ int main()
   assert(get_QRXFTM(NULL, test_response_INVALID, sizeof(test_response_INVALID)) == STATUS_INVALID_PARAMETER);
   assert(get_QRXFTM(&response, NULL, sizeof(test_response_INVALID)) == STATUS_INVALID_PARAMETER);
 
+  const char test_response_cut[] = "+QRXFTM: -1";
+  assert(get_QRXFTM(&response, test_response_cut, sizeof(test_response_cut)) == STATUS_INVALID_RESPONSE);
+
+
+  // incomplete data -- too small buffer
+  char buffer[sizeof(test_response_OK) - 9];
+  strncpy(buffer, test_response_OK, sizeof(buffer) - 1);
+  buffer[sizeof(buffer) - 1] = 0;
+  assert(get_QRXFTM(&response, buffer, sizeof(buffer)) == STATUS_INVALID_RESPONSE);
   return 0;
 }
